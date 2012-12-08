@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document><Folder><name>big_somme_complete</name>
+<Schema name="big_somme_complete" id="big_somme_complete">
+	<SimpleField name="Name" type="string"></SimpleField>
+	<SimpleField name="Description" type="string"></SimpleField>
+	<SimpleField name="id" type="int"></SimpleField>
+</Schema>
+  <Placemark>
+<name>
+Battle of Albert
+</name>
+<Style><LineStyle><color>ff0000ff</color></LineStyle>  <PolyStyle><fill>0</fill></PolyStyle></Style>
+	<ExtendedData>
+	<SchemaData schemaUrl="#big_somme_complete">
+		<SimpleData name="id">1</SimpleData>
+	</SchemaData>
+	<Data name="Url">
+<value>http://en.wikipedia.org/wiki/Battle_of_Albert_%281916%29</value>
+</Data></ExtendedData>
+      <TimeSpan><begin>Sat Jul 01 07:30:00 GMT 1916</begin><end>Fri Jul 14 00:00:00 GMT 1916</end></TimeSpan>
+ <Point><coordinates>2.712,49.993</coordinates></Point>
+  </Placemark>
+<Placemark>
+<name>
+First Day on the Somme
+</name>
+<Style><LineStyle><color>ff0000ff</color></LineStyle>  <PolyStyle><fill>0</fill></PolyStyle></Style>
+	<ExtendedData><SchemaData schemaUrl="#big_somme_complete">
+		<SimpleData name="id">1</SimpleData>
+	</SchemaData>
+	<Data name="Url">
+<value>http://en.wikipedia.org/wiki/First_day_on_the_Somme</value>
+</Data></ExtendedData>
+      <TimeSpan><begin>Sat Jul 01 07:30:00 GMT 1916</begin><end>Sun Jul 02 00:00:00 GMT 1916</end></TimeSpan>
+ <Point><coordinates>2.712,49.993</coordinates></Point>
+  </Placemark>
+ <Placemark>
+<name>
+Continuing the attack: 2–13 July
+</name>
+<Style><LineStyle><color>ff0000ff</color></LineStyle>  <PolyStyle><fill>0</fill></PolyStyle></Style>
+	<ExtendedData><SchemaData schemaUrl="#big_somme_complete">
+		<SimpleData name="id">1</SimpleData>
+	</SchemaData>
+	<Data name="Url">
+<value>http://en.wikipedia.org/wiki/Battle_of_the_somme#Continuing_the_attack:_2.E2.80.9313_July</value>
+</Data></ExtendedData>
+      <TimeSpan><begin>Sun Jul 02 00:00:00 GMT 1916</begin><end>Fri Jul 14 00:00:00 GMT 1916</end></TimeSpan>
+ <Point><coordinates>2.712,49.993</coordinates></Point>
+  </Placemark>
+<Placemark>
+<name>
+Battle of Bazentin Ridge
+</name>
+<Style><LineStyle><color>ff0000ff</color></LineStyle>  <PolyStyle><fill>0</fill></PolyStyle></Style>
+	<ExtendedData><SchemaData schemaUrl="#big_somme_complete">
+		<SimpleData name="id">1</SimpleData>
+	</SchemaData>
+	<Data name="Url">
+<value>http://en.wikipedia.org/wiki/Battle_of_Bazentin_Ridge</value>
+</Data></ExtendedData>
+      <TimeSpan><begin>Fri Jul 14 00:00:00 GMT 1916</begin><end>Sat Jul 23 00:00:00 GMT 1916</end></TimeSpan>
+ <Point><coordinates>2.754167,50.027444</coordinates></Point>
+  </Placemark>
+<Placemark>
+<name>
+Battle of Pozières
+</name>
+<Style><LineStyle><color>ff0000ff</color></LineStyle>  <PolyStyle><fill>0</fill></PolyStyle></Style>
+	<ExtendedData><SchemaData schemaUrl="#big_somme_complete">
+		<SimpleData name="id">1</SimpleData>
+	</SchemaData>
+	<Data name="Url">
+<value>http://en.wikipedia.org/wiki/Battle_of_Pozi%C3%A8res</value>
+</Data></ExtendedData>
+      <TimeSpan><begin>Sat Jul 23 00:00:00 GMT 1916</begin><end>Wed Sep 27 00:00:00 GMT 1916</end></TimeSpan>
+ <Point><coordinates>2.8,50.016667</coordinates></Point>
+  </Placemark>
+<Placemark>
+<name>
+Battle of Mouquet Farm
+</name>
+<Style><LineStyle><color>ff0000ff</color></LineStyle>  <PolyStyle><fill>0</fill></PolyStyle></Style>
+	<ExtendedData><SchemaData schemaUrl="#big_somme_complete">
+		<SimpleData name="id">1</SimpleData>
+	</SchemaData>
+	<Data name="Url">
+<value>http://en.wikipedia.org/wiki/Battle_of_Mouquet_Farm</value>
+</Data></ExtendedData>
+      <TimeSpan><begin>Sat Jul 23 00:00:00 GMT 1916</begin><end>Wed Sep 27 00:00:00 GMT 1916</end></TimeSpan>
+ <Point><coordinates>2.712734,50.051469</coordinates></Point>
+  </Placemark>
+<Placemark>
+<name>
+Battle of Guillemont
+</name>
+<Style><LineStyle><color>ff0000ff</color></LineStyle>  <PolyStyle><fill>0</fill></PolyStyle></Style>
+	<ExtendedData><SchemaData schemaUrl="#big_somme_complete">
+		<SimpleData name="id">1</SimpleData>
+	</SchemaData>
+	<Data name="Url">
+<value>http://en.wikipedia.org/wiki/Battle_of_Guillemont</value>
+</Data></ExtendedData>
+      <TimeSpan><begin>Sun Sep 03 00:00:00 GMT 1916</begin><end>Thu Sep 07 00:00:00 GMT 1916</end></TimeSpan>
+ <Point><coordinates>2.824444,50.013778</coordinates></Point>
+  </Placemark>
+<Placemark>
+<name>
+Battle of Ginchy
+</name>
+<Style><LineStyle><color>ff0000ff</color></LineStyle>  <PolyStyle><fill>0</fill></PolyStyle></Style>
+	<ExtendedData><SchemaData schemaUrl="#big_somme_complete">
+		<SimpleData name="id">1</SimpleData>
+	</SchemaData>
+	<Data name="Url">
+<value>http://en.wikipedia.org/wiki/Battle_of_Ginchy</value>
+</Data></ExtendedData>
+      <TimeSpan><begin>Sat Sep 09 00:00:00 GMT 1916</begin><end>Sun Sep 10 00:00:00 GMT 1916</end></TimeSpan>
+ <Point><coordinates>2.832444,50.022667</coordinates></Point>
+  </Placemark>
+  <Placemark>
+<name>
+ Debut of the tank, 15–28 September
+</name>
+<Style><LineStyle><color>ff0000ff</color></LineStyle>  <PolyStyle><fill>0</fill></PolyStyle></Style>
+	<ExtendedData><SchemaData schemaUrl="#big_somme_complete">
+		<SimpleData name="id">1</SimpleData>
+	</SchemaData>
+	<Data name="Url">
+<value>http://en.wikipedia.org/wiki/Battle_of_the_somme#Debut_of_the_tank.2C_15.E2.80.9328_September</value>
+</Data></ExtendedData>
+      <TimeSpan><begin>Fri Sep 15 00:00:00 GMT 1916</begin><end>Fri Sep 29 00:00:00 GMT 1916</end></TimeSpan>
+ <Point><coordinates>2.747778,50.058889</coordinates></Point>
+  </Placemark>
+<Placemark>
+<name>
+Battle of Flers-Courcelette
+</name>
+<Style><LineStyle><color>ff0000ff</color></LineStyle>  <PolyStyle><fill>0</fill></PolyStyle></Style>
+	<ExtendedData><SchemaData schemaUrl="#big_somme_complete">
+		<SimpleData name="id">1</SimpleData>
+	</SchemaData>
+	<Data name="Url">
+<value>http://en.wikipedia.org/wiki/Battle_of_Flers-Courcelette</value>
+</Data></ExtendedData>
+      <TimeSpan><begin>Fri Sep 15 00:00:00 GMT 1916</begin><end>Sat Sep 23 00:00:00 GMT 1916</end></TimeSpan>
+ <Point><coordinates>2.747778,50.058889</coordinates></Point>
+  </Placemark>
+ <Placemark>
+<name>
+Battle of Morval
+</name>
+<Style><LineStyle><color>ff0000ff</color></LineStyle>  <PolyStyle><fill>0</fill></PolyStyle></Style>
+	<ExtendedData><SchemaData schemaUrl="#big_somme_complete">
+		<SimpleData name="id">1</SimpleData>
+	</SchemaData>
+	<Data name="Url">
+<value>http://en.wikipedia.org/wiki/Battle_of_Morval</value>
+</Data></ExtendedData>
+      <TimeSpan><begin>Fri Sep 22 00:00:00 GMT 1916</begin><end>Fri Sep 29 00:00:00 GMT 1916</end></TimeSpan>
+ <Point><coordinates>2.8424,50.0316</coordinates></Point>
+  </Placemark>
+ <Placemark>
+<name>
+Battle of Thiepval Ridge
+</name>
+<Style><LineStyle><color>ff0000ff</color></LineStyle>  <PolyStyle><fill>0</fill></PolyStyle></Style>
+	<ExtendedData><SchemaData schemaUrl="#big_somme_complete">
+		<SimpleData name="id">1</SimpleData>
+	</SchemaData>
+	<Data name="Url">
+<value>http://en.wikipedia.org/wiki/Battle_of_Thiepval_Ridge</value>
+</Data></ExtendedData>
+      <TimeSpan><begin>Tue Sep 26 00:00:00 GMT 1916</begin><end>Fri Sep 29 00:00:00 GMT 1916</end></TimeSpan>
+ <Point><coordinates>2.688389,50.054528</coordinates></Point>
+  </Placemark>
+ <Placemark>
+<name>
+Battle of Le Transloy
+</name>
+<Style><LineStyle><color>ff0000ff</color></LineStyle>  <PolyStyle><fill>0</fill></PolyStyle></Style>
+	<ExtendedData><SchemaData schemaUrl="#big_somme_complete">
+		<SimpleData name="id">1</SimpleData>
+	</SchemaData>
+	<Data name="Url">
+<value>http://en.wikipedia.org/wiki/Battle_of_Le_Transloy</value>
+</Data></ExtendedData>
+      <TimeSpan><begin>Sun Oct 01 00:00:00 GMT 1916</begin><end>Sat Nov 06 00:00:00 GMT 1916</end></TimeSpan>
+ <Point><coordinates>2.887722,50.057389</coordinates></Point>
+  </Placemark>
+ <Placemark>
+<name>
+Battle of the Ancre Heights
+</name>
+<Style><LineStyle><color>ff0000ff</color></LineStyle>  <PolyStyle><fill>0</fill></PolyStyle></Style>
+	<ExtendedData><SchemaData schemaUrl="#big_somme_complete">
+		<SimpleData name="id">1</SimpleData>
+	</SchemaData>
+	<Data name="Url">
+<value>http://en.wikipedia.org/wiki/Battle_of_the_Ancre_Heights</value>
+</Data></ExtendedData>
+      <TimeSpan><begin>Sun Oct 01 00:00:00 GMT 1916</begin><end>Sun Nov 12 00:00:00 GMT 1916</end></TimeSpan>
+ <Point><coordinates>2.744122,50.058241</coordinates></Point>
+  </Placemark>
+ <Placemark>
+<name>
+Battle of the Ancre
+</name>
+<Style><LineStyle><color>ff0000ff</color></LineStyle>  <PolyStyle><fill>0</fill></PolyStyle></Style>
+	<ExtendedData><SchemaData schemaUrl="#big_somme_complete">
+		<SimpleData name="id">1</SimpleData>
+	</SchemaData>
+	<Data name="Url">
+<value>http://en.wikipedia.org/wiki/Battle_of_the_Ancre</value>
+</Data></ExtendedData>
+      <TimeSpan><begin>Mon Nov 13 00:00:00 GMT 1916</begin><end>Sun Nov 19 00:00:00 GMT 1916</end></TimeSpan>
+ <Point><coordinates>2.656231,50.084463</coordinates></Point>
+  </Placemark>
+</Folder></Document></kml>

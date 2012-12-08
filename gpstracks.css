@@ -1,0 +1,141 @@
+
+	   #map_table {
+                width: 75%;
+            }
+            #map_ol {
+                height: 400px;
+                border: 2px solid #000;
+                margin-left: 5px;
+            }
+            #info {
+                position: absolute;
+                top: 10px;
+                right: 5px;
+                width: 20%;
+                font-size: 80%;
+                border: 1px solid #000;
+                padding-left: 1em;
+                padding-right: 1em;
+                font-family: Helvetica, Arial, sans-serif;
+            }
+            #title {
+                text-align: center;
+                font-family: Helvetica, Arial, sans-serif;
+            }
+	    #source_code {
+                font-size: 80%;
+                font-family: Helvetica, Arial, sans-serif;
+            }
+            #intro {
+                height: 250px;
+                font-family: Helvetica, Arial, sans-serif;
+            }
+	   #amount {
+                font-size: 80%;
+                font-family: Helvetica, Arial, sans-serif;
+            }
+	    #amount_label{
+                font-size: 80%;
+                font-family: Helvetica, Arial, sans-serif;
+            }
+	    #btnAddItem{
+		width: 90%;
+		align: center;
+  	    }
+	    #btnDeleteItem{
+		width: 90%;
+		align: center;
+	    }
+	    #btnHelp{
+		width: 48%;
+	    }
+	    #btnCredits{
+		width: 48%;
+	    }
+	   #speed{
+		width: 90%;
+		align: center;
+	    }
+	    #FullTrackButton{
+	    }
+	    #IncrementButton{
+	    }
+	    #displayRadio{
+	    }	    
+	    #txtValue{
+		font-size: 16px;
+		width: 90%;
+		align: center;
+	    }
+            .desc {
+                text-align: center;
+            }
+            .info img {
+                float: left;
+            }
+            #zselect {
+                padding-top: 1em;
+            }
+            v\:* {
+                behavior:url(#default#VML);
+            }
+	    
+
+	    #lsbox {
+                width: 90%;
+		font-size: 16px;
+		align: center;
+            }
+	    #lsbox.option {
+                background-color: #ff0000;
+            }	    
+            .play {
+                width:24px;
+                height:24px;
+                background-image: url(Play24.gif);
+                float:left;
+            }
+            .pause {
+                width:24px;
+                height:24px;
+                background-image: url(Pause24.gif);
+                float:left;
+            }
+	    .stop {
+                width:24px;
+                height:24px;
+                background-image: url(Stop24.gif);
+                float:left;
+            }
+	    .play_m {
+                width:48px;
+                height:48px;
+                background-image: url(Play48.gif);
+                float:left;
+            }
+            .pause_m {
+                width:48px;
+                height:48px;
+                background-image: url(Pause48.gif);
+                float:left;
+            }
+	    .stop_m {
+                width:48px;
+                height:48px;
+                background-image: url(Stop48.gif);
+                float:left;
+            }
+	    .slider {
+                border: 2px solid #000;
+		margin-left: 96px;
+            }
+	    .slider_m{
+                border: 2px solid #000;
+		margin-left: 106px;
+		margin-top: 7px;
+		font-size: 200%;
+            }	  
+	    #playSlider{
+                border: 2px solid #000;
+		margin-left: 56px;
+            }	 

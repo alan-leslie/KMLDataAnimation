@@ -1,0 +1,431 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- arch-tag: f0db8795-3291-41bc-a66e-def764bfc8ef (do not change this
+comment) -->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+    
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+        />
+        <title>KML Plotting/Animation</title>
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.8.20/themes/base/jquery-ui.css"
+        type="text/css" media="all" />
+        <link rel="stylesheet" href="http://static.jquery.com/ui/css/demo-docs-theme/ui.theme.css"
+        type="text/css" media="all" />
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.8.21/themes/base/jquery-ui.css"
+        type="text/css" media="all" />
+        <link rel="stylesheet" href="http://static.jquery.com/ui/css/demo-docs-theme/ui.theme.css"
+        type="text/css" media="all" />
+        <link rel="stylesheet" href="./gpstracks.css" type="text/css" />
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"
+        type="text/javascript"></script>
+        <script src="http://code.jquery.com/ui/1.8.20/jquery-ui.min.js"
+        type="text/javascript"></script>
+        <script src="http://jquery-ui.googlecode.com/svn/tags/latest/external/jquery.bgiframe-2.1.2.js"
+        type="text/javascript"></script>
+        <script src="http://jquery-ui.googlecode.com/svn/tags/latest/ui/minified/i18n/jquery-ui-i18n.min.js"
+        type="text/javascript"></script>
+        <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDdfZ991xmwxK_3DfPpFROX20AtvRiCKtQ&sensor=false"></script>
+        <!--<script type="text/javascript" src="http://timemap.googlecode.com/svn/tags/2.0.1/lib/mxn/mxn.js?(googlev3)"></script>-->
+        <script type="text/javascript" src="http://openlayers.org/api/OpenLayers.js"></script>
+        <script type="text/javascript" src="http://timemap.googlecode.com/svn/tags/2.0.1/lib/mxn/mxn.js?(openlayers)"></script>
+        <script src="kml_front_files/KMLDataCollection.js" type="text/javascript"></script>
+        <script src="kml_front_files/KMLData.js" type="text/javascript"></script>
+        <script type="text/javascript" src="./detectmobilebrowser.js"></script>
+        <script type="text/javascript" src="./kml_options_panel.js"></script>
+        <script type="text/javascript" src="./kml_control_panel.js"></script>
+        <script type="text/javascript">
+            //<![CDATA[
+            var map = null;
+            var speed_mult = 0;
+            var fcancel = null;
+            var theData = new KMLDataCollection();
+            var start = 0.0;
+            var end;
+            var isSetup = false;
+            var sliderTimeIncrement = 0.0;
+            var showSingleFront = true;
+            var isMobile = false;
+            var colourIndex = 0.0;
+            var tracks_shown = false;
+            var startpt = new mxn.LatLonPoint(49.997588, 2.77256);
+
+            // constants for switching syles of controls
+            var pauseClass = "pause";
+            var playClass = "play";
+            var stopClass = "stop";
+            var sliderClass = "slider";
+
+            /**
+             * Utility function to calculate the appropriate zoom level for a
+             * given bounding box and map image size. Uses the formula described
+             * in the Google Mapki (http://mapki.com/).
+             *
+             * @param  bounds  bounding box (GBounds instance)
+             * @param  mnode   DOM element containing the map.
+             * @return         zoom level.
+             */
+            function best_zoom(bounds, mnode) {
+                var width = mnode.offsetWidth;
+                var height = mnode.offsetHeight;
+
+                var dlat = Math.abs(bounds.maxY - bounds.minY);
+                var dlon = Math.abs(bounds.maxX - bounds.minX);
+                if (dlat == 0 && dlon == 0) return 4;
+
+                // Center latitude in radians
+                var clat = Math.PI * (bounds.minY + bounds.maxY) / 360.;
+
+                var C = 0.0000107288;
+                var z0 = Math.ceil(Math.log(dlat / (C * height)) / Math.LN2);
+                var z1 = Math.ceil(Math.log(dlon / (C * width * Math.cos(clat))) / Math.LN2);
+
+                return (z1 > z0) ? z1 : z0;
+            }
+
+            function getTheData() {
+                return theData;
+            };
+
+            function initialize() {
+                // Start with animation disabled
+                var e = document.getElementById("speed");
+                e.options[0].selected = 1;
+                speed_mult = 10;
+
+                //~ map = new mxn.Mapstraction(document.getElementById("map_ol"), "googlev3", true);
+                map = new mxn.Mapstraction(document.getElementById("map_ol"), "openlayers", true);
+
+                // set default controls and map type
+                map.addControls({
+                    pan: true,
+                    zoom: true ? 'large' : false,
+                    map_type: true
+                });
+
+                map.setMapType(mxn.Mapstraction.ROAD);
+
+                var gphy = new OpenLayers.Layer.Google("Google Physical", {
+                    type: google.maps.MapTypeId.TERRAIN,
+                    visibility: false
+                });
+
+                var gsat = new OpenLayers.Layer.Google("Google Satellite", {
+                    type: google.maps.MapTypeId.SATELLITE,
+                    numZoomLevels: 22
+                });
+
+                var nativeMap = map.getMap();
+                nativeMap.addLayers([gphy, gsat]);
+
+                if (window.location.search) {
+                    // Was a fcommand option specified?
+                    var params = window.location.search.slice(1).split("&");
+                    var vals = new Array(params.length);
+                    for (var i = 0; i < params.length; i++) {
+                        var item = params[i].split("=");
+                        vals[item[0]] = item[1];
+                    }
+
+                    if (vals["file"]) {
+                        addNewListItem(vals["file"]);
+                    }
+
+                    if (vals["somme"]) {
+                        addNewListItem('kml/somme_map.kml');
+                        addNewListItem('kml/somme_timeline.kml');
+                        addNewListItem('kml/western_front.kml');
+                        startpt = new mxn.LatLonPoint(49.997588, 2.77256);
+                        tracks_shown = true;
+                    }
+
+                    if (vals["somme_london"]) {
+                        addNewListItem('kml/somme_london.kml');
+                        startpt = new mxn.LatLonPoint(51.50714, - 0.127573);
+                        tracks_shown = true;
+                    }
+                }
+
+                // display the map centered on a default latitude and longitude
+                map.setCenterAndZoom(startpt, 9);
+            }
+
+            function set_speed_mult(val) {
+                if ($("#playPauseButton").attr("class") == pauseClass) {
+                    $("#playPauseButton").click();
+                }
+                speed_mult = val;
+            }
+
+            function clearMap() {
+                map.closeBubble();
+                map.removeAllMarkers();
+                map.removeAllPolylines();
+                var dataLength = theData.theData.length;
+
+                for (var i = 0; i < dataLength; ++i) {
+                    theData.theData[i].clearAll();
+                }
+            }
+
+            function reset() {
+                clearMap();
+                $("#playPauseButton").attr("class", playClass);
+                $("#playSlider").slider("value", 0.0);
+                start = theData.getEarliestStart();
+                end = theData.getEarliestStart();
+            }
+
+            // Display all of the data from a KML file at the specified
+            // zoom level. Input from the UI determines whether we will
+            // animate the track or display it statically.
+            function showdata() {
+                zoom = 5;
+                var timeout_id = 0;
+
+                if (!isSetup) { // || showSingleFront) {
+                    clearMap();
+                }
+
+                // Setup function to center and zoom the map appropriately
+                // to display the data
+                // precon - if there is data that they are valid
+                var f_setup = function (f_next) {
+                    if (tracks_shown) {
+                        tracks_shown = false;
+                    } else {
+                        zoom = 16 - best_zoom(theData.theBounds, document.getElementById("map_ol"));
+                        map.setCenterAndZoom(new mxn.LatLonPoint(theData.centerLat, theData.centerLon), zoom);
+                    }
+
+                    isSetup = true;
+                    start = theData.getEarliestStart();
+                    //~ end = 1.0;
+                    f_next();
+                }
+
+                // Animate the data
+                var f_animate = function () {
+                    if (end === null || end === 0.0) {
+                        end = theData.getEarliestStart();
+                    }
+
+                    animateTracks();
+                };
+
+                var animateTracks = function () {
+                    //~ if(showSingleFront === true){
+                    //~ clearMap();
+                    //~ }
+                    f_display();
+                    set_elapsed_time_display();
+
+                    if (end < theData.getLatestEnd()) {
+                        var noOfIncrements = 0.0;
+                        if (end < theData.getEarliestStart()) {
+                            end = theData.getEarliestStart();
+                            start = theData.getEarliestStart();
+                            noOfIncrements = 0;
+                        } else {
+                            var sliderDiff = end - theData.getEarliestStart();
+                            noOfIncrements = sliderDiff / sliderTimeIncrement;
+                        }
+
+                        $("#playSlider").slider("value", noOfIncrements);
+
+                        if (showSingleFront === true) {
+                            start = end;
+                        }
+                        end = end + sliderTimeIncrement;
+
+                        var theTimeout = speed_mult * 10;
+                        timeout_id = setTimeout(animateTracks, theTimeout);
+                    } else {
+                        $('#playPauseButton').click();
+                    }
+                };
+
+                fcancel = function () {
+                    if (timeout_id > 0) {
+                        clearTimeout(timeout_id);
+                    }
+                };
+
+                // Display the data.
+                var f_display = function () {
+                    var dataLength = theData.theData.length;
+                    var displayStart = start;
+                    var displayEnd = end;
+                    if (!showSingleFront) {
+                        displayStart = theData.getEarliestStart();
+                    } else {
+                        if (start > end) {
+                            displayStart = end;
+                            displayEnd = start;
+                        }
+                    }
+
+                    for (var i = 0; i < dataLength; ++i) {
+                        theData.theData[i].display(map, displayStart, displayEnd);
+                    }
+                };
+
+                if (speed_mult == 0 || $("#playPauseButton").attr("class") == playClass) {
+                    if (isSetup) {
+                        f_display();
+                    } else {
+                        f_setup(f_display);
+                    }
+                } else {
+                    if (isSetup) {
+                        f_animate();
+                    } else {
+                        f_setup(f_animate);
+                    }
+                }
+            }
+
+            $(document).ready(function () {
+                initOptionsPanel();
+                initialize();
+
+                if ($.browser.mobile === true) {
+                    isMobile = true;
+                    $("#other_links").hide();
+                    pauseClass = "pause_m";
+                    playClass = "play_m";
+                    stopClass = "stop_m";
+                    // note: tried to use a different class for the slider
+                    // but for some reason lost the slider handle
+                    $("#playSlider").css("margin-left", "106px");
+                    $("#playSlider").css("margin-top", "7px");
+                    $("#playSlider").css("font-size", "200%");
+                    $("#map_ol").css("height", "340px");
+                }
+
+                initControlPanel();
+            });
+            //]]>
+        </script>
+    </head>
+    
+    <body>
+        <table id="map_table">
+            <tr>
+                <td>
+                    <div style="background-color: rgb(229, 227, 223);" id="map_ol">
+                </td>
+            </tr>
+            <tr>
+                <td>	<span> 
+		    <div id="stopButton" class="stop"></div>
+                    <div id="playPauseButton" class="play"></div>
+		<div id="playSlider" class="slider"></div>
+                 </span> 
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div style="text-align:center;">	<span>
+	           <input type="text" id="start_date" style="border:0; color:#f6931f; font-weight:bold;" />
+		   <label id="slider_date_label" for="slider_date">Slider:</label>
+	           <input type="text" id="slider_date" style="border:0; color:#f6931f; font-weight:bold;" />
+	           <input type="text" id="end_date" style="border:0; color:#f6931f; font-weight:bold; text-align: right;" />
+		   </span>
+
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <div id="info">
+            <p>
+                <button id="btnHelp" onclick="help_button();">Help</button>
+                <button id="btnCredits" onclick="credits_button();">Credits</button>
+            </p>
+            <p>Animation elapsed time(approx):</p>
+            <form>
+                <select id="speed" name="speed" size="1" onchange="set_speed_mult(this.options[this.selectedIndex].value)">
+                    <option selected="selected" value="10">10 seconds</option>
+                    <option value="25">25 seconds</option>
+                    <option value="50">50 seconds</option>
+                    <option value="100">100 seconds</option>
+                    <option value="0">0 seconds</option>
+                </select>
+            </form>
+            <p>Front Display:</p>
+            <div id="displayRadio">
+                <Input type=radio Name=r1 Value="Single" id="SingleFrontButton" checked=true>Delta
+                <Input type=radio Name=r1 Value="All" id="AllFrontsButton">All</div>
+            <p>Add KML files to the list below.</p>
+            <table>
+                <tr>
+                    <td align="center">
+                        <input name="txtValue" type="text" id="txtValue" />
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center">
+                        <button name="btnAddItem" id="btnAddItem" onclick="javascript:addNewListItem();">Add</button>
+                    </td>
+                    <tr>
+                        <tr>
+                            <td align="center">
+                                <select id="lsbox" name="lsbox" size="6"></select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center">
+                                <button id="btnDeleteItem" onclick="listbox_remove('lsbox');">Delete</button>
+                            </td>
+                        </tr>
+            </table>
+        </div>
+        <div id="intro" title="KML Plotting/Animation Demo">
+            <p>This page shows <a href="http://www.topografix.com/gpx.asp">KML-format</a> data
+                on a map combined with a time slider. To begin add some data to the list
+                (currently you can only use KML files from the server).</p>
+             <h3 class="subhead">Plotting</h3>
+
+            <p>If you want to view the all of the data just hit the play button. You
+                can also use the slider (by clicking on it or by using the left and right
+                arrow keys) to show parts (the difference between the first slider click
+                and the second slider click) of the data.</p>
+             <h3 class="subhead">Animation</h3>
+
+            <p>To show the data as an animation, select the elapsed time that you want
+                and then hit the play button. Again you can use the slider but this will
+                pause the animation.</p>
+        </div>
+        <div id="source_code" title="Credits">
+            <p>The code was inspired by a GPX Animation/Plotting demo at <a href="http://home.mindspring.com/%7Emfkenney/gpstracks.html">Mike Kenney's site</a>.
+                This code has been changed to:
+                <ul>
+                    <li>use a <a href="http://code.google.com/p/mapstraction">map abstraction layer</a>
+                    </li>
+                    <li>use a KML File</li>
+                    <li>allow multiple kml files to be added</li>
+                </ul>
+            </p>
+        </div>
+        <div id="other_links">
+            <p>	<a href="./SommeTimemap.html">
+	Timemap Version</a>
+
+            </p>
+            <p>	<a href="./AlsMaps.html">
+	More Maps</a>
+
+            </p>
+            <p>	<a href="mailto:alan_leslie@ymail.com?Subject=Somme">
+	Send Mail</a>
+
+            </p>
+        </div>
+        <div id="add_empty" title="Add Error">Please input a valid KML file name before selecting add.</div>
+        <div id="add_already_exists"
+        title="Add Error">The KML file already exists in the list.</div>
+        <div id="no_gps_data" title="Add Error">The file/URL is not a valid KML file.</div>
+        <div id="no_file" title="Add Error">File/URL not found or not valid XML.</div>
+    </body>
+
+</html>
