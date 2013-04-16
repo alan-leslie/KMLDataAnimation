@@ -49,6 +49,9 @@ comment) -->
             var colourIndex = 0.0;
             var tracks_shown = false;
             var startpt = new mxn.LatLonPoint(49.997588, 2.77256);
+	    var zoom = 9;
+	    var trackIndex = 0;
+
 
             // constants for switching syles of controls
             var pauseClass = "pause";
@@ -144,10 +147,34 @@ comment) -->
                         startpt = new mxn.LatLonPoint(51.50714, - 0.127573);
                         tracks_shown = true;
                     }
-                }
+		    
+                   if (vals["scifest"]) {
+                        addNewListItem('kml/activities_2013.kml');
+                        addNewListItem('kml/films_2013.kml');
+                        addNewListItem('kml/shows_2013.kml');
+                        addNewListItem('kml/talks_2013.kml');
+                        addNewListItem('kml/tours_2013.kml');
+                        addNewListItem('kml/workshops_2013.kml');
+                        startpt = new mxn.LatLonPoint(56.0, -3.1);
+			$("#timemap_link").attr('href', './EdSciTimemap.html');
+			zoom = 10;
+                        tracks_shown = true;
+                    }               
+		    
+                   if (vals["robberies"]) {
+                        addNewListItem('kml/police16.kml');
+                        addNewListItem('kml/police8.kml');
+                        addNewListItem('kml/police4.kml');
+                        startpt = new mxn.LatLonPoint(51.5, -0.1);
+			$("#timemap_link").attr('href', './RobberyHeatmap.html');
+			zoom = 10;
+                        tracks_shown = true;
+                    }  
+
+		}
 
                 // display the map centered on a default latitude and longitude
-                map.setCenterAndZoom(startpt, 9);
+                map.setCenterAndZoom(startpt, zoom);
             }
 
             function set_speed_mult(val) {
@@ -195,8 +222,11 @@ comment) -->
                         tracks_shown = false;
                     } else {
                         zoom = 16 - best_zoom(theData.theBounds, document.getElementById("map_ol"));
-                        map.setCenterAndZoom(new mxn.LatLonPoint(theData.centerLat, theData.centerLon), zoom);
-                    }
+			if(isNaN(zoom)){
+			    zoom = 5;
+			}
+                        map.setCenterAndZoom(new mxn.LatLonPoint(theData.centreLat, theData.centreLon), zoom);
+                   }
 
                     isSetup = true;
                     start = theData.getEarliestStart();
@@ -408,7 +438,7 @@ comment) -->
             </p>
         </div>
         <div id="other_links">
-            <p>	<a href="./SommeTimemap.html">
+            <p>	<a id="timemap_link" href="./SommeTimemap.html">
 	Timemap Version</a>
 
             </p>

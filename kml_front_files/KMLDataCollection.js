@@ -2,8 +2,10 @@ var KMLDataCollection = function () {
         var self = this;
         self.theData = new Array();
 	self.earliestStart = 0.0;
-	self.latestEnd = 0.0;
+	self.latestEnd = self.earliestStart + 1000.0;
 	self.longestTimeOffset = 0.0;
+	self.centreLat = 0.0;
+	self.centreLon = 0.0;
 
         self.theBounds = new mxn.BoundingBox(0.0, 0.0, 0.0, 0.0);
     };
@@ -66,8 +68,8 @@ KMLDataCollection.prototype.setBounds = function () {
 	    theMaxLat = Math.max(theMaxLat, bounds.maxY);
 	};
 
-	this.centerLon = (theMaxLon + theMinLon) / 2.;
-	this.centerLat = (theMinLat + theMaxLat) / 2.;
+	this.centreLon = (theMaxLon + theMinLon) / 2.;
+	this.centreLat = (theMinLat + theMaxLat) / 2.;
 
 	this.theBounds = {
 	    minX: theMinLon,
@@ -112,8 +114,20 @@ KMLDataCollection.prototype.setTimes = function () {
 			}
 		}
 	
-		this.earliestStart  = earliestStartDate.getTime();
-		this.latestEnd = latestEndDate.getTime();
+		var dateNow = new Date();
+		
+		if(earliestStartDate){
+		    this.earliestStart  = earliestStartDate.getTime();
+		} else {
+		    this.earliestStart  = dateNow.getTime();
+		}
+		
+		if(latestEndDate){
+		    this.latestEnd  = latestEndDate.getTime();
+		} else {
+		    this.latestEnd  = this.earliestStart + 1000;
+		}
+
 		this.longestTimeOffset = this.latestEnd - this.earliestStart;
 	}
 };

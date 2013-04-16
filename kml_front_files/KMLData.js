@@ -123,9 +123,9 @@ KMLPoint.prototype.setDescription = function(descriptionDataNode) {
 	}
 }
 
-KMLPoint.prototype.plot = function(map, lw, colour) {
+KMLPoint.prototype.plot = function(map, lw, colour, markIcon) {
     if (!colour) colour = ["#0000aa"];
-    this.marker = plotPoint(this, map);
+    this.marker = plotPoint(this, map, markIcon);
 }
 
 KMLPoint.prototype.hide = function(map) {
@@ -147,7 +147,7 @@ var PolylinePoint = function (theCoords) {
 	var splitCoords = theCoords.split(",");
 	this.isValid = false;
 	
-	if(splitCoords.length === 2.0){
+	if(splitCoords.length >= 2.0){
 		this.latitude = parseFloat(splitCoords[1]);
 		this.longitude = parseFloat(splitCoords[0]);
 		this.isValid = true;
@@ -165,13 +165,16 @@ PolylinePoint.prototype.getBoundsCoords = function () {
     return theBounds;
 };
 
-var LineString = function (pts) {
+var LineString = function (pts, isPolygon) {
         this.points = new Array();
+	var pointString = "";
+	this.isClosed = isPolygon;
 	
         var ptsLength = pts.length;
         for (var i = 0; i < ptsLength; ++i) {
-	    if(pts[i].length > 0){
-                var thePoint = new PolylinePoint(pts[i]);
+	    pointString = pts[i];
+	    if(pointString.length > 0){
+                var thePoint = new PolylinePoint(pointString);
                 this.points.push(thePoint);
 	    }
         }
@@ -211,17 +214,18 @@ LineString.prototype.plot = function(map, lw, colour) {
 
     var pts = this.points; 
     var ptsLength = pts.length;
-     this.polyline = plotPointlist(pts, map, lw, colour);
+     this.polyline = plotPointlist(pts, map, lw, colour, this.isClosed);
 }
 
 LineString.prototype.hide = function(map) {
      hidePolyline(this.polyline, map);
 }
 
-var Placemark = function (placemarkXML, theColour) {
+var Placemark = function (placemarkXML, theColour, markIcon) {
 	var self = this;
 	this.isVisible = false;
 	self.lineColour = theColour;  // set to default if null
+	self.markIcon = markIcon;
 
 	self.theLineString = new Object();
 
@@ -235,6 +239,32 @@ var Placemark = function (placemarkXML, theColour) {
 	var thePolygon = kmlGetElements(placemarkXML, "Polygon");
 	var isValid = false;
 
+	if(thePolygon && thePolygon.length >= 1.0){
+		var lsLength = thePolygon.length;
+		var lsFirst = thePolygon[0];
+		var coordString = "";
+		
+		var theCoords = kmlGetElements(lsFirst, "coordinates");
+		
+		// TODO deal with inner boundaries as well as outer
+		if(theCoords && theCoords.length >= 1.0){	
+			coordString = $(theCoords).first().text();
+			coordString = coordString.replace(/[\r\n]/g, " ");
+			coordString = coordString.replace(/\s+/g, " ");
+			coordString = coordString.replace(/^\s+/,'');
+			coordString = coordString.replace(/\s+$/,'');
+			//~ var newlineSplitCoords = coordString.split('\n');
+			
+			//~ if(newlineSplitCoords.length > 0){
+				var splitCoords = coordString.split(' ');
+				if(splitCoords.length > 0){
+				    this.theObject = new LineString(splitCoords, true);			
+				    isValid = true;
+				}
+			//~ }
+		}
+	}
+	
 	if(theLineString && theLineString.length === 1.0){
 		var lsLength = theLineString.length;
 		var lsFirst = theLineString[0];
@@ -246,7 +276,7 @@ var Placemark = function (placemarkXML, theColour) {
 			var splitLength = splitCoords.length;
 
 			if(splitLength > 0){
-			    this.theObject = new LineString(splitCoords);			
+			    this.theObject = new LineString(splitCoords, false);			
 			    isValid = true;
 			}
 		}
@@ -305,11 +335,15 @@ Placemark.prototype.getBoundsCoords = function () {
     return theBounds;
 }
 
-Placemark.prototype.display = function (map, start, end, icon) {
-	// todo - allow placemarks without time data to be displayed 
-    if(!(this.startDateTime > end || this.endDateTime < start)){
+Placemark.prototype.display = function (map, start, end, lineColour, markIcon) {
+	var shouldDisplay = (this.startDateTime === null);
+	if(!shouldDisplay){
+            shouldDisplay = !(this.startDateTime > end || this.endDateTime < start);
+	}
+	
+    if(shouldDisplay){
         if(!this.isVisible){
-		this.theObject.plot(map, 2, this.lineColour);
+		this.theObject.plot(map, 2, this.lineColour, this.markIcon);
 		this.isVisible = true;
 	}
     } else {
@@ -320,10 +354,11 @@ Placemark.prototype.display = function (map, start, end, icon) {
     }
 };
 
-var KMLData = function (theFileName, onLoadValidFunction, onLoadErrorFunction, lineColour) {
+var KMLData = function (theFileName, onLoadValidFunction, onLoadErrorFunction, lineColour, markIcon) {
         var self = this;
         self.fileName = theFileName;
 	self.lineColour = lineColour;
+	self.markIcon = markIcon;
 
         self.isFetched = false;
 	self.onLoadValid = onLoadValidFunction;
@@ -354,7 +389,7 @@ KMLData.prototype.setup = function (kml) {
     this.isValid = true;
 
     for (var i = 0; i < marksLength; ++i) {
-	var thePlacemark = new Placemark(theMarks[i], this.lineColour);
+	var thePlacemark = new Placemark(theMarks[i], this.lineColour, this.markIcon);
 	    
 	if(thePlacemark.isValid === false){
 		this.isValid = false;
@@ -432,7 +467,8 @@ KMLData.prototype.setTimes = function () {
 };
 
 KMLData.prototype.display = function (map, start, end, icon) {
-    for(var i = 0; i < this.thePlacemarks.length; ++i){
+	var marksLength = this.thePlacemarks.length;
+    for(var i = 0; i < marksLength; ++i){
 	    this.thePlacemarks[i].display(map, start, end, icon);
     }
 };
@@ -511,6 +547,121 @@ function fetch_kml(req_cache, url, callbackObject, cback, err) {
                     });
 }
 
+
+var KML = { 
+	getPoint : function(placemarkXML){
+	    var theResult = null;
+	    var theGMLPoint = gmlGetElements(placemarkXML, "", "Point");
+	    var theCoordsString = "";
+		
+	    if (theGMLPoint && theGMLPoint.length === 1.0) {
+		var theCoords = gmlGetElements(theGMLPoint[0], "", "pos");
+
+		if (theCoords && theCoords.length === 1.0) {
+		    theCoordsString = $(theCoords).first().text();
+		} else {
+		    theCoords = gmlGetElements(theGMLPoint[0], "", "coordinates");
+		    if (theCoords && theCoords.length === 1.0) {
+			theCoordsString = $(theCoords).first().text();
+		    }
+		}
+		
+		if(theCoordsString !== ""){
+		    var theSplitCoords = theCoordsString.split(" ");
+		    var theCoordsArranged = theSplitCoords[1] + "," + theSplitCoords[0];
+		    
+		     theResult = new GMLPoint(theCoordsArranged);
+
+		    var extendedData = gmlGetElements(placemarkXML, "", "ExtendedData");
+		    var desc = gmlGetElements(placemarkXML, "", "description");
+		    var name = gmlGetElements(placemarkXML, "", "name");
+
+		    theResult.setURL(extendedData);
+		    theResult.setName(name);
+		    theResult.setDescription(desc);
+		}
+	    }
+	    
+	    return theResult;
+	},
+
+	getPolyline : function(placemarkXML){
+	    var theResult = null;
+	    var theGMLLineString = gmlGetElements(placemarkXML, "", "LineString");
+	    var theCoordsString = "";
+		
+	    if (theGMLLineString && theGMLLineString.length === 1.0) {
+		var lsFirst = theGMLLineString[0];
+		var theCoords = gmlGetElements(lsFirst, "", "posList");
+		    
+		if (theCoords && theCoords.length === 1.0) {
+		    theCoordsString = $(theCoords).first().text();
+		} else {
+		    theCoords = gmlGetElements(lsFirst, "", "coordinates");
+		    if (theCoords && theCoords.length === 1.0) {
+			theCoordsString = $(theCoords).first().text();
+		    }
+		}
+		
+		if(theCoordsString !== ""){
+		    var splitCoords = theCoordsString.split(' ');
+		    var splitLength = splitCoords.length;
+
+		    if (splitLength > 0) {
+			var coordsArray = [];
+
+			for (var i = 0; i < splitLength / 2; ++i) {
+			    var coordStr = splitCoords[(i * 2) + 1] + "," + splitCoords[(i * 2) + 0];
+			    coordsArray.push(coordStr);
+			}
+			
+			theResult = new LineString(coordsArray);
+		    }
+		}
+	    }
+    
+	    return theResult;
+	},
+
+	getPolygon : function(placemarkXML){
+	    var theResult = null;
+	    var theGMLPolygon = gmlGetElements(placemarkXML, "", "Polygon");
+	    var theCoordsString = "";
+		
+	    if (theGMLPolygon && theGMLPolygon.length === 1.0) {
+		var lsFirst = theGMLPolygon[0];
+	       var theCoords = gmlGetElements(lsFirst, "", "posList");
+		    
+		if (theCoords && theCoords.length === 1.0) {
+		    theCoordsString = $(theCoords).first().text();
+		} else {
+		    theCoords = gmlGetElements(lsFirst, "", "coordinates");
+		    if (theCoords && theCoords.length === 1.0) {
+			theCoordsString = $(theCoords).first().text();
+		    }
+		}
+		
+		if(theCoordsString !== ""){
+		    var splitCoords = theCoordsString.split(' ');
+		    var splitLength = splitCoords.length;
+
+		    if (splitLength > 0) {
+			var coordsArray = [];
+
+			for (var i = 0; i < splitLength / 2; ++i) {
+			    var coordStr = splitCoords[(i * 2) + 1] + "," + splitCoords[(i * 2) + 0];
+			    coordsArray.push(coordStr);
+			}
+			
+			theResult = new LineString(coordsArray);
+		    }
+		}
+	    }
+	    
+	    return theResult;
+	}
+};
+
 /**
  * Convert a KML datetime string into a JS Date object
  * @param  input  GPX timestamp string (DOW MMM DD YYYY HH:MM:SS)
@@ -520,9 +671,26 @@ function kml_datetime(input) {
     var dts = new String(input); 
     var dt = dts.split(" ");
     var hms = dt[3].split(":");
-    var monthNo = 0;
+    var monthNo = getMonthIndex(dt[1]);
+    var yearNo = 0;
+    var dayNo = 0;
 	
-	switch(dt[1]){
+    if(dt.length > 5){
+	    yearNo = parseInt(dt[5]);
+	    dayNo = parseInt(dt[2]);
+    } else {
+	    yearNo = parseInt(dt[2]);
+	    dayNo = parseInt(dt[0]);
+    }
+	
+    return new Date(yearNo, monthNo, dayNo, hms[0], hms[1], hms[2]);
+}
+  
+
+function getMonthIndex(monthString){	
+	var monthNo = 0;
+	
+	switch(monthString){
 	    case "Feb":
 		monthNo = 1;
 		break;
@@ -559,8 +727,8 @@ function kml_datetime(input) {
 	    default:
 	        monthNo = 0;
 	}
-
-    return new Date(dt[5], monthNo, dt[2], hms[0], hms[1], hms[2]);
+	
+	return monthNo;
 }
 
 /**
@@ -571,7 +739,7 @@ function kml_datetime(input) {
  * @param     lw      line width (optional: default 2)
  * @param     color   line color (optional: default #0000aa)
  */
-function plotPointlist(pts, map, lw, lineColor) {
+function plotPointlist(pts, map, lw, lineColor, isClosed) {
 	if (!lw) lw = 2;
 	if (!lineColor) lineColor = "#0000aa";
 	var thePolyline = null;
@@ -584,7 +752,7 @@ function plotPointlist(pts, map, lw, lineColor) {
 	}
 
 	if(thePoints.length > 1){
-	    thePolyline = showPoints(thePoints, map, lineColor, lw);
+	    thePolyline = showPoints(thePoints, map, lineColor, lw, isClosed);
 	}
 	
 	return thePolyline;
@@ -599,16 +767,24 @@ function plotPointlist(pts, map, lw, lineColor) {
  * @param     lw     the line widthS
  * @return      nothing
  */
- function showPoints(thePoints, map, color, lw){
+ function showPoints(thePoints, map, color, lw, isClosed){
 	    var thePolyline = new mxn.Polyline(thePoints);
+	    var opacity = 0.3;
+	    var fillColour;
+	    var lineOpacity = 1.0;
+	 
+	   if(isClosed){
+		   lineOpacity = opacity;
+		   fillColour = color;
+	   }
 
 	    thePolyline.addData({
 		color: color,
-		width: lw //, 
-		//~ opacity: theme.lineOpacity, 
-		//~ closed: isPolygon, 
-		//~ fillColor: theme.fillColor,
-		//~ fillOpacity: theme.fillOpacity
+		width: lw, 
+		opacity: lineOpacity, 
+		closed: isClosed, 
+		fillColor: fillColour,
+		fillOpacity: opacity
 	    });
 
 	    map.addPolyline(thePolyline);
@@ -631,7 +807,11 @@ mxn.Marker.prototype.openInfoWindow = function(){
  * @param     map     Map object
  * @param     icon    Icon for each marker (optional)
  */
-function plotPoint(pt, map, icon) {
+function plotPoint(pt, map, markIcon) {
+	if(!markIcon && markIcon.length < 1){
+		markIcon =  "./timemap/images/red-circle.png";
+	}
+	
 	function make_handler(marker, html) {
 	return function () {
 		marker.openInfoWindow()
@@ -660,7 +840,7 @@ function plotPoint(pt, map, icon) {
 	var joinedHtml = html.join("");
 
 	var options = {
-	    icon: "./timemap/images/red-circle.png",
+	    icon: markIcon,
 	    iconSize: [16, 16],
 	    iconAnchor: [8, 8],
 	    infoBubble: joinedHtml

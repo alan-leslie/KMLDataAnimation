@@ -76,7 +76,9 @@ function listbox_remove(sourceID) {
 	    var itemSelector = '#lsbox :nth-child(' + lsLength + ')';
 	    $(itemSelector).attr('selected', 'selected');
 	}
-    }
+    } else {
+	//~ $("#playPauseButton").attr("disabled", true);
+   }
     
     sliderTimeIncrement = theData.getLongestTimeOffset() / 100;
 
@@ -107,9 +109,10 @@ function addNewListItem(newItem) {
 	return false;
     }
 
-    var trackIndex = theData.theData.length;
     var lineColour = get_available_colour(trackIndex);
-    var theDataItem = new KMLData(itemValue.value, completeAdd, errorAdd, lineColour);
+    var markIcon = get_available_icon(trackIndex);
+    trackIndex++;
+    var theDataItem = new KMLData(itemValue.value, completeAdd, errorAdd, lineColour, markIcon);
     var fetched = theDataItem.fetch(null, fileNotFoundError);
 
     $("#btnAddItem").attr("disabled", true);
@@ -161,6 +164,8 @@ function completeAdd(theItem) {
 	    var foregroundColour = getForegroundColour(theItem.lineColour);
 	    $(itemSelector).css('color', foregroundColour);
 	}
+	
+	//~ $("#playPauseButton").attr("disabled", false);
     }
 
     isSetup = false;
@@ -169,13 +174,20 @@ function completeAdd(theItem) {
     $("#btnAddItem").attr("disabled", false);
 }
 
-function get_available_colour(trackIndex) {
+function get_available_colour(theIndex) {
 	var colors = ["#ff0000", "#ff8c00", "#ffd700", "#00ff00", "#0000ff", "#480082",  "#ee82ee", "#a52a2a", "#00ffff", "#ff00ff", "#000000"];
 	var n = colors.length;
-	var theColour = colors[colourIndex % n];
-	++colourIndex;
+	var theColour = colors[theIndex % n];
 	return theColour;
  }
+ 
+ function get_available_icon(theIndex) {
+ 	var icons = ["images/red-circle.png", "images/orange-circle.png", "images/yellow-circle.png", "images/green-circle.png", "images/blue-circle.png", "images/dark-blue-circle.png",  "images/purple=circle.png", "images/brown-circle.png", "images/magenta-circle.png", "images/cyan-circle.png", "images/black-circle.png"];
+	var n = icons.length;
+	var theIcon = icons[theIndex % n];
+	return theIcon;
+}
+
 
 // get a colour that contrasts with the background colour
 function getForegroundColour(backgroundColour) {
